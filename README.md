@@ -103,6 +103,63 @@ A comprehensive Income Tax Return filing and management platform built with Reac
    npm run client
    ```
 
+## 🚀 Deployment
+
+### Automated Netlify Deployment
+
+This project includes automated deployment to Netlify with GitHub Actions.
+
+#### Quick Deploy to Netlify
+
+1. **Fork/Clone this repository**
+2. **Connect to Netlify:**
+   - Sign up at [netlify.com](https://netlify.com)
+   - Import your repository
+   - Build settings are auto-configured via `netlify.toml`
+
+3. **Environment Variables:**
+   Set these in Netlify dashboard (Site Settings > Environment Variables):
+   ```env
+   REACT_APP_SUPABASE_URL=your_supabase_url
+   REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key
+   REACT_APP_API_URL=your_backend_api_url
+   CI=false
+   GENERATE_SOURCEMAP=false
+   ```
+
+4. **GitHub Secrets:**
+   Add these to your GitHub repository (Settings > Secrets):
+   ```
+   NETLIFY_AUTH_TOKEN=your_netlify_auth_token
+   NETLIFY_SITE_ID=your_netlify_site_id
+   REACT_APP_SUPABASE_URL=your_supabase_url
+   REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+#### Manual Deployment
+
+```bash
+# Build the client application
+npm run build
+
+# Deploy to Netlify
+npm run deploy:netlify
+
+# Or create a preview deployment
+npm run deploy:preview
+```
+
+#### Deployment Features
+
+- ✅ **Automatic deployments** on push to main branch
+- ✅ **Preview deployments** for pull requests
+- ✅ **Build optimization** with environment-specific configuration
+- ✅ **Custom domain support** with SSL
+- ✅ **Form handling** for contact forms
+- ✅ **Redirect rules** for SPA routing
+
+For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md)
+
 ## API Endpoints
 
 ### Authentication

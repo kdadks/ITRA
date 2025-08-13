@@ -12,7 +12,16 @@
     "install-server": "cd server && npm install",
     "install-client": "cd client && npm install",
     "install-all": "npm install && npm run install-server && npm run install-client",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cd client && npm test",
+    "test:coverage": "cd client && npm test -- --coverage --watchAll=false",
+    "deploy:build": "./build.sh",
+    "deploy:netlify": "netlify deploy --prod --dir=client/build",
+    "deploy:preview": "netlify deploy --dir=client/build",
+    "prebuild": "npm run install-client",
+    "postbuild": "echo 'Build completed successfully!'",
+    "clean": "rm -rf client/build && rm -rf server/dist",
+    "lint": "cd client && npm run lint",
+    "lint:fix": "cd client && npm run lint -- --fix"
   },
   "keywords": ["tax", "income-tax", "itr", "compliance", "fintech"],
   "author": "ITR Assist Team",

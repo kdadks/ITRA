@@ -1,0 +1,69 @@
+# Netlify Build Configuration
+[build]
+  # Directory to change to before starting a build
+  base = "client/"
+  
+  # Directory that contains the deploy-ready HTML files and assets
+  publish = "client/build/"
+  
+  # Default build command
+  command = "npm run build"
+
+# Build environment variables
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "9"
+
+# Production context (main branch)
+[context.production]
+  command = "npm ci && npm run build"
+
+# Deploy preview context (pull requests)
+[context.deploy-preview]
+  command = "npm ci && npm run build"
+
+# Branch deploy context (other branches)
+[context.branch-deploy]
+  command = "npm ci && npm run build"
+
+# Redirect rules for React Router (SPA)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+
+# Cache headers for static assets
+[[headers]]
+  for = "/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# API proxy rules (if needed for development)
+[[redirects]]
+  from = "/api/*"
+  to = "https://your-backend-api.herokuapp.com/api/:splat"
+  status = 200
+  force = false
+  conditions = {Role = ["admin", "user"]}
+
+# Environment-specific redirects
+[[context.production.redirects]]
+  from = "/api/*"
+  to = "https://your-production-api.com/api/:splat"
+  status = 200
+
+[[context.deploy-preview.redirects]]
+  from = "/api/*"
+  to = "https://your-staging-api.com/api/:splat"
+  status = 200
