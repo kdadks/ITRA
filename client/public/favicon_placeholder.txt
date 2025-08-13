@@ -1,0 +1,2 @@
+<!-- This is a placeholder for favicon.ico - Replace with actual favicon file -->
+<!-- For now, we'll create a simple SVG-based favicon -->

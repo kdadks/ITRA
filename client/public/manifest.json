@@ -1,0 +1,66 @@
+{
+  "name": "ITR Assist - Intelligent Tax Return Platform",
+  "short_name": "ITR Assist",
+  "description": "Comprehensive tax return filing platform with intelligent features for Indian taxpayers",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#1976d2",
+  "background_color": "#ffffff",
+  "orientation": "portrait-primary",
+  "categories": ["finance", "productivity", "business"],
+  "lang": "en-IN",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231976d2'/><text x='50' y='60' font-size='60' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-weight='bold'>T</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-home.png",
+      "type": "image/png",
+      "sizes": "1280x720",
+      "form_factor": "wide",
+      "label": "ITR Assist Dashboard - Desktop"
+    },
+    {
+      "src": "/screenshots/mobile-tax-form.png",
+      "type": "image/png",
+      "sizes": "640x1136",
+      "form_factor": "narrow",
+      "label": "Tax Return Form - Mobile"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Tax Return",
+      "short_name": "New ITR",
+      "description": "Start filing a new tax return",
+      "url": "/app/tax-returns/new",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%231976d2' d='M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z'/></svg>",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View your tax dashboard",
+      "url": "/app/dashboard",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%231976d2' d='M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z'/></svg>",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+}
