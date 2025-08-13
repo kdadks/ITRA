@@ -1,0 +1,23 @@
+{
+  "name": "itr-assist",
+  "version": "1.0.0",
+  "description": "ITR Assist - Comprehensive Income Tax Return assistance platform",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm start",
+    "build": "cd client && npm run build",
+    "start": "cd server && npm start",
+    "install-server": "cd server && npm install",
+    "install-client": "cd client && npm install",
+    "install-all": "npm install && npm run install-server && npm run install-client",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["tax", "income-tax", "itr", "compliance", "fintech"],
+  "author": "ITR Assist Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
