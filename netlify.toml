@@ -4,27 +4,29 @@
   base = "client/"
   
   # Directory that contains the deploy-ready HTML files and assets
-  publish = "client/build/"
+  publish = "build/"
   
   # Default build command
-  command = "npm run build"
+  command = "npm install && npm run build"
 
 # Build environment variables
 [build.environment]
   NODE_VERSION = "18"
   NPM_VERSION = "9"
+  CI = "false"
+  GENERATE_SOURCEMAP = "false"
 
 # Production context (main branch)
 [context.production]
-  command = "npm ci && npm run build"
+  command = "npm install && npm run build"
 
 # Deploy preview context (pull requests)
 [context.deploy-preview]
-  command = "npm ci && npm run build"
+  command = "npm install && npm run build"
 
 # Branch deploy context (other branches)
 [context.branch-deploy]
-  command = "npm ci && npm run build"
+  command = "npm install && npm run build"
 
 # Redirect rules for React Router (SPA)
 [[redirects]]

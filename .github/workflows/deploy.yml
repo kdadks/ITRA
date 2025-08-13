@@ -32,12 +32,12 @@ jobs:
     - name: Install Client Dependencies
       run: |
         cd client
-        npm ci
+        npm install
 
     - name: Install Server Dependencies
       run: |
         cd server
-        npm ci
+        npm install
 
     - name: Run Tests (Client)
       run: |
