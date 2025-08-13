@@ -38,8 +38,7 @@ import {
   Refresh,
   Notifications,
   TrendingDown,
-  TrendingUp,
-  Lightbulb
+  TrendingUp
 } from '@mui/icons-material';
 
 const RealTimeComplianceEngine = ({
@@ -501,7 +500,7 @@ const RealTimeComplianceEngine = ({
       <Card>
         <CardContent>
           <Typography variant="subtitle1" gutterBottom>
-            <Lightbulb sx={{ mr: 1, verticalAlign: 'middle' }} />
+            <Info sx={{ mr: 1, verticalAlign: 'middle' }} />
             Recommendations
           </Typography>
           
