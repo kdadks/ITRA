@@ -15,7 +15,16 @@ exports.handler = async (event, context) => {
   }
 
   try {
+    // Log environment check
+    console.log('Environment check:', {
+      hasSupabaseUrl: !!process.env.SUPABASE_URL,
+      hasSupabaseServiceKey: !!process.env.SUPABASE_SERVICE_KEY,
+      hasJwtSecret: !!process.env.JWT_SECRET
+    });
+
     const requestBody = JSON.parse(event.body);
+    console.log('Registration attempt for:', requestBody.email);
+
     const {
       firstName,
       lastName,
