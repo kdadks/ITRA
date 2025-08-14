@@ -6,11 +6,15 @@
   # Directory that contains the deploy-ready HTML files and assets
   publish = "build/"
   
-  # Default build command
-  command = "npm install && npm run build"
+  # Default build command - install function deps first, then build React
+  command = "cd ../netlify/functions && npm install && cd ../../client && npm install && npm run build"
   
   # Netlify Functions directory
   functions = "../netlify/functions"
+
+# Auto-install function dependencies
+[[plugins]]
+package = "@netlify/plugin-functions-install-core"
 
 # Build environment variables
 [build.environment]
@@ -18,6 +22,7 @@
   NPM_VERSION = "9"
   CI = "false"
   GENERATE_SOURCEMAP = "false"
+  ESLINT_NO_DEV_ERRORS = "true"
   # React App will use Netlify Functions (/.netlify/functions/)
   REACT_APP_API_URL = "/.netlify/functions"
 
