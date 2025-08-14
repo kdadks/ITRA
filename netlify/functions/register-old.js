@@ -1,8 +1,9 @@
-// Fixed register function with correct schema mapping
+// Netlify Function: User Registration
 const { supabase, handleCORS, createResponse, createErrorResponse, logger } = require('./utils');
 
 let bcrypt, jwt;
 
+// Initialize dependencies with error handling
 try {
   bcrypt = require('bcryptjs');
   jwt = require('jsonwebtoken');
@@ -14,9 +15,10 @@ try {
 
 exports.handler = async (event, context) => {
   const startTime = Date.now();
-  logger.info('=== Fixed Registration Function Started ===');
+  logger.info('=== Registration Function Started ===');
   
   try {
+    // Log environment and request
     logger.logEnvironment();
     logger.logRequest(event);
 
@@ -27,11 +29,13 @@ exports.handler = async (event, context) => {
       return corsResponse;
     }
 
+    // Only allow POST requests
     if (event.httpMethod !== 'POST') {
       logger.warn('Invalid HTTP method', { method: event.httpMethod });
       return createErrorResponse(405, 'Method Not Allowed');
     }
 
+    // Parse request body
     let requestBody;
     try {
       if (!event.body) {
@@ -43,10 +47,7 @@ exports.handler = async (event, context) => {
       logger.info('Request body parsed successfully', { 
         hasEmail: !!requestBody.email,
         hasPassword: !!requestBody.password,
-        hasFirstName: !!requestBody.firstName,
-        hasPan: !!requestBody.pan,
-        hasAadhar: !!requestBody.aadhar,
-        hasDateOfBirth: !!requestBody.dateOfBirth
+        hasFirstName: !!requestBody.firstName
       });
     } catch (parseError) {
       logger.error('Failed to parse request body', parseError);
@@ -65,7 +66,7 @@ exports.handler = async (event, context) => {
       address
     } = requestBody;
 
-    // Comprehensive validation based on actual schema
+    // Comprehensive validation
     const validationErrors = [];
     
     if (!firstName?.trim()) validationErrors.push('firstName is required');
@@ -73,46 +74,35 @@ exports.handler = async (event, context) => {
     if (!email?.trim()) validationErrors.push('email is required');
     if (!password) validationErrors.push('password is required');
     if (!phone?.trim()) validationErrors.push('phone is required');
-    
-    // Required fields per schema
-    if (!dateOfBirth?.trim()) validationErrors.push('dateOfBirth is required');
-    if (!pan?.trim()) validationErrors.push('pan is required');
-    if (!aadhar?.trim()) validationErrors.push('aadhar is required');
 
     if (validationErrors.length > 0) {
       logger.warn('Validation failed', { errors: validationErrors });
       return createErrorResponse(400, 'Validation failed', null, { validationErrors });
     }
 
-    // Format validations
+    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       logger.warn('Invalid email format', { email });
       return createErrorResponse(400, 'Invalid email format');
     }
 
+    // Validate password strength
     if (password.length < 6) {
       logger.warn('Password too short', { length: password.length });
       return createErrorResponse(400, 'Password must be at least 6 characters');
     }
 
-    // PAN validation (required)
-    if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(pan)) {
+    // Validate PAN format if provided
+    if (pan && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(pan)) {
       logger.warn('Invalid PAN format', { pan });
-      return createErrorResponse(400, 'Invalid PAN format (e.g., ABCDE1234F)');
+      return createErrorResponse(400, 'Invalid PAN format');
     }
 
-    // Aadhar validation (required)
-    if (aadhar.length !== 12 || !/^\d{12}$/.test(aadhar)) {
+    // Validate Aadhar format if provided
+    if (aadhar && (aadhar.length !== 12 || !/^\d{12}$/.test(aadhar))) {
       logger.warn('Invalid Aadhar format', { aadharLength: aadhar?.length });
-      return createErrorResponse(400, 'Invalid Aadhar format (12 digits required)');
-    }
-
-    // Date validation
-    const dobDate = new Date(dateOfBirth);
-    if (isNaN(dobDate.getTime())) {
-      logger.warn('Invalid date format', { dateOfBirth });
-      return createErrorResponse(400, 'Invalid date of birth format');
+      return createErrorResponse(400, 'Invalid Aadhar format');
     }
 
     logger.info('Validation passed, checking for existing user', { email });
@@ -140,40 +130,6 @@ exports.handler = async (event, context) => {
       return createErrorResponse(400, 'User with this email already exists');
     }
 
-    // Check for existing PAN
-    try {
-      const panCheck = await supabase
-        .from('users')
-        .select('id')
-        .eq('pan', pan.toUpperCase())
-        .single();
-      
-      if (panCheck.data) {
-        logger.warn('PAN already exists', { pan });
-        return createErrorResponse(400, 'User with this PAN already exists');
-      }
-    } catch (error) {
-      // This is expected when no user found
-      logger.debug('PAN check completed - no existing user');
-    }
-
-    // Check for existing Aadhar
-    try {
-      const aadharCheck = await supabase
-        .from('users')
-        .select('id')
-        .eq('aadhar', aadhar)
-        .single();
-      
-      if (aadharCheck.data) {
-        logger.warn('Aadhar already exists', { aadhar: 'XXXX-XXXX-' + aadhar.slice(-4) });
-        return createErrorResponse(400, 'User with this Aadhar already exists');
-      }
-    } catch (error) {
-      // This is expected when no user found
-      logger.debug('Aadhar check completed - no existing user');
-    }
-
     logger.info('User does not exist, proceeding with registration');
 
     // Hash password
@@ -187,34 +143,33 @@ exports.handler = async (event, context) => {
       return createErrorResponse(500, 'Failed to process password', hashError);
     }
 
-    // Prepare user data matching the schema exactly
+    // Prepare user data
     const userData = {
       first_name: firstName.trim(),
       last_name: lastName.trim(),
       email: email.toLowerCase().trim(),
       password: hashedPassword,
       phone: phone.trim(),
-      date_of_birth: dateOfBirth, // Required field
-      pan: pan.toUpperCase().trim(), // Required field
-      aadhar: aadhar.trim(), // Required field
-      address: address || {}, // JSONB field
       role: 'user',
-      profile_completion: 80, // Higher since we have more data
-      preferences: {
-        notifications: true,
-        language: 'en',
-        theme: 'light'
-      },
-      subscription_plan: 'free',
-      subscription_is_active: true,
-      is_verified: false
+      profile_completion: 60,
+      personal_info: JSON.stringify({
+        pan: pan || '',
+        aadhar: aadhar || '',
+        dateOfBirth: dateOfBirth || '',
+        address: address || {}
+      }),
+      preferences: JSON.stringify({}),
+      subscription: JSON.stringify({
+        plan: 'free',
+        startDate: new Date().toISOString(),
+        endDate: null,
+        isActive: true
+      }),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     };
 
-    logger.info('Inserting user into database', { 
-      email: userData.email,
-      pan: userData.pan,
-      aadhar: 'XXXX-XXXX-' + userData.aadhar.slice(-4)
-    });
+    logger.info('Inserting user into database', { email: userData.email });
 
     // Insert user into database
     let insertResult;
@@ -227,10 +182,7 @@ exports.handler = async (event, context) => {
 
       logger.debug('Database insert result', { 
         success: !!insertResult.data,
-        error: insertResult.error?.message,
-        errorDetails: insertResult.error?.details,
-        errorHint: insertResult.error?.hint,
-        errorCode: insertResult.error?.code
+        error: insertResult.error?.message 
       });
     } catch (insertError) {
       logger.error('Database insertion failed', insertError);
@@ -239,19 +191,6 @@ exports.handler = async (event, context) => {
 
     if (insertResult.error) {
       logger.error('Database insertion error', insertResult.error);
-      
-      // Handle specific database errors
-      if (insertResult.error.code === '23505') {
-        // Unique constraint violation
-        if (insertResult.error.details?.includes('email')) {
-          return createErrorResponse(400, 'Email already exists');
-        } else if (insertResult.error.details?.includes('pan')) {
-          return createErrorResponse(400, 'PAN already exists');
-        } else if (insertResult.error.details?.includes('aadhar')) {
-          return createErrorResponse(400, 'Aadhar already exists');
-        }
-      }
-      
       return createErrorResponse(500, 'Failed to create user account', insertResult.error);
     }
 

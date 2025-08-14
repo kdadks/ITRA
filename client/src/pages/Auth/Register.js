@@ -131,7 +131,24 @@ const Register = () => {
 
     try {
       console.log('Starting registration process...');
-      const result = await register(formData);
+      
+      // Prepare the form data for submission
+      const submissionData = {
+        ...formData,
+        // Format date for database
+        dateOfBirth: formData.dateOfBirth ? formData.dateOfBirth.toISOString().split('T')[0] : null,
+        // Ensure PAN and Aadhar are properly formatted
+        pan: formData.pan?.trim().toUpperCase(),
+        aadhar: formData.aadhar?.trim()
+      };
+      
+      console.log('Submission data prepared:', {
+        ...submissionData,
+        password: '[HIDDEN]',
+        confirmPassword: '[HIDDEN]'
+      });
+      
+      const result = await register(submissionData);
       if (result.success) {
         console.log('Registration successful, redirecting...');
         navigate('/app');
