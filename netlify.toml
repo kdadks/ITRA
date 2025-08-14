@@ -8,6 +8,9 @@
   
   # Default build command
   command = "npm install && npm run build"
+  
+  # Netlify Functions directory
+  functions = "../netlify/functions"
 
 # Build environment variables
 [build.environment]
@@ -15,6 +18,8 @@
   NPM_VERSION = "9"
   CI = "false"
   GENERATE_SOURCEMAP = "false"
+  # React App will use Netlify Functions (/.netlify/functions/)
+  REACT_APP_API_URL = "/.netlify/functions"
 
 # Production context (main branch)
 [context.production]

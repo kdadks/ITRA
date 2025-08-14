@@ -1,46 +1,88 @@
-# Netlify Deployment Guide for ITR Assist
+# Netlify Full-Stack Deployment Guide for ITR Assist
 
-This document provides step-by-step instructions for setting up automated deployment of the ITR Assist platform to Netlify.
+This document provides step-by-step instructions for deploying the complete ITR Assist platform (frontend + backend) to Netlify using Netlify Functions.
+
+## 🏗️ Architecture Overview
+
+**NEW ARCHITECTURE:**
+- **Frontend:** React SPA hosted on Netlify
+- **Backend:** Node.js converted to Netlify Functions (serverless)
+- **Database:** Supabase PostgreSQL
+- **Authentication:** JWT with Netlify Functions
+- **Deployment:** Single platform (Netlify)
 
 ## 🚀 Quick Setup
 
-### 1. Netlify Account Setup
+### 1. Prerequisites
 
-1. Sign up for a free [Netlify account](https://netlify.com)
-2. Connect your GitHub account to Netlify
-3. Import your `kdadks/ITRA` repository
+- Node.js 18+ installed
+- Netlify account
+- Supabase account and project
+- GitHub repository
 
-### 2. Environment Variables
+### 2. Install Netlify CLI
 
-Set the following environment variables in your Netlify dashboard:
+```bash
+npm install -g netlify-cli
+```
 
-**Site Settings > Environment Variables:**
+### 3. Environment Variables Setup
 
+**Create `.env` file in project root:**
 ```env
 # Supabase Configuration
-REACT_APP_SUPABASE_URL=your_supabase_project_url
-REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_SERVICE_KEY=your_supabase_service_role_key
+JWT_SECRET=your_super_secret_jwt_key_here
 
-# API Configuration (if using separate backend)
-REACT_APP_API_URL=https://your-backend-api.com
-
-# Build Configuration
-CI=false
-GENERATE_SOURCEMAP=false
+# React App Configuration  
+REACT_APP_API_URL=/.netlify/functions
 ```
 
-### 3. GitHub Secrets
+### 4. Set Netlify Environment Variables
 
-Add the following secrets to your GitHub repository:
-
-**Settings > Secrets and Variables > Actions:**
-
+**Netlify Dashboard > Site Settings > Environment Variables:**
+```env
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_SERVICE_KEY=your_supabase_service_role_key
+JWT_SECRET=your_super_secret_jwt_key_here
+REACT_APP_API_URL=/.netlify/functions
 ```
-NETLIFY_AUTH_TOKEN=your_netlify_personal_access_token
-NETLIFY_SITE_ID=your_netlify_site_id
-REACT_APP_SUPABASE_URL=your_supabase_project_url
-REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key
-REACT_APP_API_URL=https://your-backend-api.com
+
+## 📋 Deployment Steps
+
+### Step 1: Install Dependencies
+
+```bash
+# Install function dependencies
+cd netlify/functions && npm install
+
+# Install React dependencies  
+cd ../../client && npm install
+```
+
+### Step 2: Test Locally
+
+```bash
+# From project root
+netlify dev
+```
+
+This starts:
+- React app: http://localhost:3000
+- Functions: http://localhost:8888/.netlify/functions/
+
+### Step 3: Deploy to Netlify
+
+**Option A: Git-based deployment (Recommended)**
+1. Push your code to GitHub
+2. Connect repository to Netlify
+3. Netlify auto-deploys on every push to main
+
+**Option B: Manual deployment**
+```bash
+# Build and deploy
+netlify deploy --prod
 ```
 
 ## 📋 Configuration Files
