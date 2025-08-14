@@ -130,14 +130,32 @@ const Register = () => {
     setError('');
 
     try {
+      console.log('Starting registration process...');
       const result = await register(formData);
       if (result.success) {
+        console.log('Registration successful, redirecting...');
         navigate('/app');
       } else {
-        setError(result.error);
+        console.error('Registration failed:', result);
+        let errorDisplay = result.error;
+        
+        if (result.details) {
+          if (result.details.validationErrors) {
+            errorDisplay += '\n\nValidation errors:\n• ' + result.details.validationErrors.join('\n• ');
+          }
+          if (result.details.errorId) {
+            errorDisplay += `\n\nError ID: ${result.details.errorId}`;
+          }
+          if (result.details.status === 502) {
+            errorDisplay += '\n\nThis appears to be a server configuration issue. Please try again later.';
+          }
+        }
+        
+        setError(errorDisplay);
       }
     } catch (err) {
-      setError('An unexpected error occurred');
+      console.error('Unexpected registration error:', err);
+      setError(`An unexpected error occurred: ${err.message}`);
     } finally {
       setLoading(false);
     }

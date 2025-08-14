@@ -3,12 +3,28 @@ require('dotenv').config();
 
 const { createClient } = require('@supabase/supabase-js');
 const jwt = require('jsonwebtoken');
+const logger = require('./logger');
 
-// Initialize Supabase
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-);
+// Initialize Supabase with better error handling
+let supabase;
+try {
+  if (!process.env.SUPABASE_URL) {
+    throw new Error('SUPABASE_URL environment variable is not set');
+  }
+  if (!process.env.SUPABASE_SERVICE_KEY) {
+    throw new Error('SUPABASE_SERVICE_KEY environment variable is not set');
+  }
+  
+  supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_KEY
+  );
+  
+  logger.info('Supabase client initialized successfully');
+} catch (error) {
+  logger.error('Failed to initialize Supabase client', error.message);
+  throw error;
+}
 
 // CORS headers for all responses
 const corsHeaders = {
@@ -51,15 +67,32 @@ const createResponse = (statusCode, body, additionalHeaders = {}) => ({
   body: JSON.stringify(body),
 });
 
-// Error response helper
-const createErrorResponse = (statusCode, message, error = null) => ({
-  statusCode,
-  headers: corsHeaders,
-  body: JSON.stringify({
-    message,
-    error: process.env.NODE_ENV === 'production' ? undefined : error,
-  }),
-});
+// Error response helper with detailed logging
+const createErrorResponse = (statusCode, message, error = null, additionalData = null) => {
+  const errorId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+  
+  logger.error(`Error ${errorId}: ${message}`, {
+    statusCode,
+    error: error ? error.toString() : null,
+    stack: error?.stack,
+    additionalData
+  });
+
+  const response = {
+    statusCode,
+    headers: corsHeaders,
+    body: JSON.stringify({
+      message,
+      errorId,
+      timestamp: new Date().toISOString(),
+      error: process.env.NODE_ENV === 'production' ? undefined : error?.toString(),
+      stack: process.env.NODE_ENV === 'production' ? undefined : error?.stack
+    }),
+  };
+
+  logger.debug('Error response created', response);
+  return response;
+};
 
 module.exports = {
   supabase,
@@ -68,4 +101,5 @@ module.exports = {
   verifyToken,
   createResponse,
   createErrorResponse,
+  logger,
 };

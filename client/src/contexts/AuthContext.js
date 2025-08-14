@@ -95,6 +95,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
+      console.log('Attempting registration with API:', `${API_BASE_URL}/register`);
       const response = await axios.post('/register', userData);
       const { token: newToken, user: newUser } = response.data;
       
@@ -104,8 +105,41 @@ export const AuthProvider = ({ children }) => {
       
       return { success: true };
     } catch (error) {
-      const message = error.response?.data?.message || 'Registration failed';
-      return { success: false, error: message };
+      console.error('Registration error details:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message,
+        stack: error.stack
+      });
+
+      let errorMessage = 'Registration failed';
+      let errorDetails = null;
+
+      if (error.response) {
+        // Server responded with error status
+        errorMessage = error.response.data?.message || `Server error (${error.response.status})`;
+        errorDetails = {
+          status: error.response.status,
+          errorId: error.response.data?.errorId,
+          timestamp: error.response.data?.timestamp,
+          validationErrors: error.response.data?.additionalData?.validationErrors
+        };
+      } else if (error.request) {
+        // Request made but no response received
+        errorMessage = 'No response from server. Please check your connection.';
+        errorDetails = { type: 'network_error' };
+      } else {
+        // Something else went wrong
+        errorMessage = error.message || 'Unknown error occurred';
+        errorDetails = { type: 'client_error' };
+      }
+
+      return { 
+        success: false, 
+        error: errorMessage,
+        details: errorDetails
+      };
     }
   };
 
