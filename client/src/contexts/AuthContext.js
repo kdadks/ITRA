@@ -11,7 +11,11 @@ export const useAuthContext = () => {
   return context;
 };
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || (
+  process.env.NODE_ENV === 'production' 
+    ? '/.netlify/functions' // Use Netlify Functions in production
+    : 'http://localhost:5000/api' // Use local Express server in development
+);
 
 // Configure axios defaults
 axios.defaults.baseURL = API_BASE_URL;
@@ -59,7 +63,7 @@ export const AuthProvider = ({ children }) => {
     const loadUser = async () => {
       if (token) {
         try {
-          const response = await axios.get('/auth/me');
+          const response = await axios.get('/me');
           setUser(response.data.user);
         } catch (error) {
           console.error('Failed to load user:', error);
@@ -75,7 +79,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post('/auth/login', { email, password });
+      const response = await axios.post('/login', { email, password });
       const { token: newToken, user: userData } = response.data;
       
       setToken(newToken);
@@ -91,7 +95,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const response = await axios.post('/auth/register', userData);
+      const response = await axios.post('/register', userData);
       const { token: newToken, user: newUser } = response.data;
       
       setToken(newToken);
